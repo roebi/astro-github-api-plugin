@@ -1,0 +1,54 @@
+---
+const { login, name } = Astro.props;
+
+var getJSON = function(url, callback) {
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', url, true);
+    xhr.responseType = 'json';
+    xhr.onload = function() {
+      var status = xhr.status;
+      if (status === 200) {
+        callback(null, xhr.response);
+      } else {
+        callback(status, xhr.response);
+      }
+    };
+    xhr.send();
+};
+
+const projectApiUrl = "https://api.github.com/repos/" + login + "/" + name
+const userApiUrl = "https://api.github.com/users/" + login
+
+let project = {};
+
+getJSON(projectApiUrl,
+function(err, data) {
+  if (err !== null) {
+    console.error('Error in getJSON of project API: ' + err);
+  } else {
+    project = data;
+  }
+});
+
+let user = {};
+
+getJSON(userApiUrl,
+function(err, data) {
+  if (err !== null) {
+    console.error('Error in getJSON of user API: ' + err);
+  } else {
+    user = data;
+  }
+});
+---
+<h1>Github Meta Data from project '{name}' of user '{login}'</h1>
+
+<h2>{name}</h2>
+
+<p>{project}</p>
+
+<h1>Github Meta Data of user '{login}'</h1>
+
+<h2>{login}</h2>
+
+<p>{user}</p>
