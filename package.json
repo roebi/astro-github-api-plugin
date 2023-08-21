@@ -28,8 +28,10 @@
         "url": "https://github.com/roebi/astro-github-api-plugin/issues"
     },
     "homepage": "https://github.com/roebi/astro-github-api-plugin#readme",
+    "type": "module",
     "dependencies": {
+        "jsonpath": "^1.1.1",
+        "node-cache": "^5.1.2",
         "node-fetch": "^3.3.2"
-    },
-    "type": "module"
+    }
 }

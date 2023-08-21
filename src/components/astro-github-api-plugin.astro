@@ -1,36 +1,109 @@
 ---
-const { login, name } = Astro.props;
+const { login, name, jsonPath, WrappedNodeName, wrappedNodeClass } = Astro.props;
 
 import fetch from 'node-fetch';
+import NodeCache from 'node-cache';
+const myNodeCache = new NodeCache( { stdTTL: 60, checkperiod: 300 } );
+import jp from 'jsonpath';
 
 async function getJson(url, context) {
-  try {
-    const response = await fetch(url);
-    if (!response.ok) {
-      console.error('Error in getJson of ' + context + ' API Status: ' + response.status);
+  console.group('getJson');
+  console.info('url: ' + url);
+  const cachedValue = myNodeCache.get(url);
+  if (cachedValue == undefined) {
+    // handle miss!
+    try {
+      console.info('fetch: ' + url);
+      const response = await fetch(url);
+      if (!response.ok) {
+        // Github has a Rate Limit
+        // in this case Status is 403 Forbidden
+        // and return this Message Object / Json:
+        // {
+        //   message: "API rate limit exceeded for nnn.nnn.nnn.nnn. (But here's the good news: Authenticated requests get a higher rate limit. Check out the documentation for more details.)",
+        //   documentation_url: 'https://docs.github.com/rest/overview/resources-in-the-rest-api#rate-limiting'
+        // }
+        console.error('Error in getJson of ' + context + ' API Status: ' + response.status);
+        console.info('remove url from cache: ' + url);
+        myNodeCache.del(url);
+      }
+      const result = await response.json();
+      if (response.ok) {
+        console.info('cache url: ' + url);
+        myNodeCache.set(url, result);
+      }
+      console.groupEnd();
+      return result;
+    } catch (err) {
+      console.error('Error in getJson of ' + context + ' API:');
+      console.error(err);
+      console.info('remove url from cache: ' + url);
+      myNodeCache.del(url);
+      console.groupEnd();
+      return {};
     }
-    const result = await response.json();
-    return result;
-  } catch (err) {
-    console.error('Error in getJson of ' + context + ' API:');
-    console.error(err);
+  } else {
+    console.info('return cached value of url: ' + url);
+    console.groupEnd();
+    return cachedValue;
   }
 }
 
-const projectApiUrl = "https://api.github.com/repos/" + login + "/" + name;
-const userApiUrl = "https://api.github.com/users/" + login;
+let projectElements: any[];
+projectElements = [];
+let userElements: any[];
+userElements = [];
 
-const project = getJson(projectApiUrl, 'project');
-const user = getJson(userApiUrl, 'user');
+if (jsonPath) {
+  if (login && name) {
+    // fetch project
+    const projectApiUrl = "https://api.github.com/repos/" + login + "/" + name;
+    const project = getJson(projectApiUrl, 'project');
+    // console.info('project:');
+    // console.info(await project);
+    // const projectString = JSON.stringify(await project, null, 2);
+    // console.info('projectString: ' + projectString);
+    projectElements = jp.query(await project, jsonPath);
+    console.info('projectElements:');
+    console.info(projectElements);
+  } else if(login) {
+    // fetch user
+    const userApiUrl = "https://api.github.com/users/" + login;
+    const user = getJson(userApiUrl, 'user');
+    // console.info('user:');
+    // console.info(await user);
+    // const userString = JSON.stringify(await user, null, 2);
+    // console.info('userString: ' + userString);
+    userElements = jp.query(await user, jsonPath);
+    console.info('userElements:');
+    console.info(userElements);
+  } else {
+    console.error('please use for fetch of project parameters login AND name, OR for fetch of user parameter login')
+  }
+} else {
+  console.info('no fetch without parameter jsonPath')
+  console.error('please use parameter jsonPath')
+}
+
+let projectElement = "";
+if (projectElements && projectElements.length == 1) {
+  projectElement = projectElements[0];
+}
+
+let userElement = "";
+if (userElements && userElements.length == 1) {
+  userElement = userElements[0];
+}
 ---
-<h1>Github Meta Data from project '{name}' of user '{login}'</h1>
+{ WrappedNodeName && wrappedNodeClass && projectElements ?
+ <WrappedNodeName class:list={wrappedNodeClass}>{projectElements}</WrappedNodeName> :
+ WrappedNodeName && projectElements ?
+ <WrappedNodeName>{projectElements}</WrappedNodeName> :
+ projectElements }
 
-<h2>{name}</h2>
-
-<p>{project}</p>
-
-<h1>Github Meta Data of user '{login}'</h1>
-
-<h2>{login}</h2>
-
-<p>{user}</p>
+{ WrappedNodeName && wrappedNodeClass && userElements ?
+  <WrappedNodeName class:list={wrappedNodeClass}>{userElements}</WrappedNodeName> :
+  WrappedNodeName && userElements ?
+  <WrappedNodeName>{userElements}</WrappedNodeName> :
+  userElements }
+ 
