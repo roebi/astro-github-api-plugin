@@ -16,7 +16,7 @@ npm install astro-github-api-plugin
 
 ```astro
 ---
-import AstroGithubApiPlugin from "astro-github-api-plugin";
+import AstroGithubApiPlugin from 'astro-github-api-plugin';
 
 // if you need a part of the project information
 // AstroGithubApiPlugin.project.topics

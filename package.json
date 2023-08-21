@@ -4,29 +4,32 @@
     "description": "in Astro - as a plugin - get the github api",
     "main": "src/components/astro-github-api-plugin.astro",
     "files": [
-      "src/components/astro-github-api-plugin.astro"
+        "src/components/astro-github-api-plugin.astro"
     ],
     "devDependencies": {
-      "astro": "^2.10.12",
-      "prettier-plugin-astro": "^0.11.1"
+        "astro": "^2.10.12",
+        "prettier-plugin-astro": "^0.11.1"
     },
     "repository": {
-      "type": "git",
-      "url": "git+https://github.com/roebi/astro-github-api-plugin.git"
+        "type": "git",
+        "url": "git+https://github.com/roebi/astro-github-api-plugin.git"
     },
     "keywords": [
-      "astro-plugin",
-      "astro-component",
-      "astro",
-      "github-api",
-      "github-meta",
-      "github"
+        "astro-plugin",
+        "astro-component",
+        "astro",
+        "github-api",
+        "github-meta",
+        "github"
     ],
     "author": "roebi",
     "license": "MIT",
     "bugs": {
-      "url": "https://github.com/roebi/astro-github-api-plugin/issues"
+        "url": "https://github.com/roebi/astro-github-api-plugin/issues"
     },
-    "homepage": "https://github.com/roebi/astro-github-api-plugin#readme"
-  }
-  
+    "homepage": "https://github.com/roebi/astro-github-api-plugin#readme",
+    "dependencies": {
+        "node-fetch": "^3.3.2"
+    },
+    "type": "module"
+}
