@@ -7,7 +7,7 @@
         "src/components/astro-github-api-plugin.astro"
     ],
     "devDependencies": {
-        "astro": "^4.16.10",
+        "astro": "^4.16.14",
         "prettier-plugin-astro": "^0.14.1"
     },
     "repository": {
